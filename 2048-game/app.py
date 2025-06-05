@@ -21,18 +21,18 @@ def new_game():
         app.logger.error(f"Error creating new game: {str(e)}")
         return jsonify({'error': 'Failed to create new game'}), 500
 
-@app.route('/move', methods=['POST'])
-def move():
+@app.route('/jump', methods=['POST'])
+def jump():
     """处理移动请求并返回更新后的游戏状态"""
     try:
         direction = request.json.get('direction')
         if direction not in ['up', 'down', 'left', 'right']:
             return jsonify({'error': 'Invalid direction'}), 400
         
-        return jsonify(game.move(direction))
+        return jsonify(game.jump(direction))
     except Exception as e:
-        app.logger.error(f"Error processing move: {str(e)}")
-        return jsonify({'error': 'Failed to process move'}), 500
+        app.logger.error(f"Error processing jump: {str(e)}")
+        return jsonify({'error': 'Failed to process jump'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
