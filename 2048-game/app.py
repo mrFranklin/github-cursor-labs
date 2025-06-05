@@ -29,7 +29,7 @@ def move():
         if direction not in ['up', 'down', 'left', 'right']:
             return jsonify({'error': 'Invalid direction'}), 400
         
-        return jsonify(game.move(direction))
+        return jsonify(game.move2(direction))
     except Exception as e:
         app.logger.error(f"Error processing move: {str(e)}")
         return jsonify({'error': 'Failed to process move'}), 500
