@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #faf8ef;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-container {
+            background: #bbada0;
+            padding: 15px 25px;
+            border-radius: 6px;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            background: #bbada0;
+            padding: 15px;
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: rgba(238, 228, 218, 0.35);
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: #776e65;
+            transition: all 0.15s ease;
+        }
+
+        .cell[data-value="2"] { background: #eee4da; }
+        .cell[data-value="4"] { background: #ede0c8; }
+        .cell[data-value="8"] { background: #f2b179; color: #f9f6f2; }
+        .cell[data-value="16"] { background: #f59563; color: #f9f6f2; }
+        .cell[data-value="32"] { background: #f67c5f; color: #f9f6f2; }
+        .cell[data-value="64"] { background: #f65e3b; color: #f9f6f2; }
+        .cell[data-value="128"] { background: #edcf72; color: #f9f6f2; font-size: 32px; }
+        .cell[data-value="256"] { background: #edcc61; color: #f9f6f2; font-size: 32px; }
+        .cell[data-value="512"] { background: #edc850; color: #f9f6f2; font-size: 32px; }
+        .cell[data-value="1024"] { background: #edc53f; color: #f9f6f2; font-size: 28px; }
+        .cell[data-value="2048"] { background: #edc22e; color: #f9f6f2; font-size: 28px; }
+
+        .new-game-btn {
+            background: #8f7a66;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .new-game-btn:hover {
+            background: #7f6a56;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(238, 228, 218, 0.73);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            color: #776e65;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>2048</h1>
+        <div class="score-container">Score: <span id="score">0</span></div>
+    </div>
+    
+    <div class="grid" id="grid">
+        <div class="game-over" id="gameOver">Game Over!</div>
+    </div>
+
+    <button class="new-game-btn" onclick="startNewGame()">New Game</button>
+
+    <script>
+        let gameState = {
+            grid: [],
+            score: 0,
+            game_over: false
+        };
+
+        function createGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '<div class="game-over" id="gameOver">Game Over!</div>';
+            
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${i}-${j}`;
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function updateGrid() {
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const cell = document.getElementById(`cell-${i}-${j}`);
+                    const value = gameState.grid[i][j];
+                    cell.textContent = value || '';
+                    cell.setAttribute('data-value', value);
+                }
+            }
+
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('gameOver').style.display = 
+                gameState.game_over ? 'flex' : 'none';
+        }
+
+        async function startNewGame() {
+            const response = await fetch('/new_game', { method: 'POST' });
+            gameState = await response.json();
+            updateGrid();
+        }
+
+        async function move(direction) {
+            if (gameState.game_over) return;
+            
+            const response = await fetch('/move', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ direction })
+            });
+            
+            gameState = await response.json();
+            updateGrid();
+        }
+        
+        document.addEventListener('keydown', (event) => {
+            const keyToDirection = {
+                'ArrowUp': 'up',
+                'ArrowDown': 'down',
+                'ArrowLeft': 'left',
+                'ArrowRight': 'right'
+            };
+
+            const direction = keyToDirection[event.key];
+            if (direction) {
+                event.preventDefault();
+                move(direction);
+            }
+        });
+
+        // Initialize the game
+        createGrid();
+        startNewGame();
+    </script>
+</body>
+</html>
