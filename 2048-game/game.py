@@ -51,13 +51,14 @@ class Game:
                 # Move and merge
                 new_col = [0] * 4
                 write_pos = 0
+                col_merged = [False] * 4  # 为每列创建独立的merged数组
+                
                 for read_pos in range(4):
                     if col[read_pos] != 0:
-                        # 修正索引顺序，确保与merged初始化方式一致
-                        if write_pos > 0 and new_col[write_pos-1] == col[read_pos] and not merged[write_pos-1][j]:
+                        if write_pos > 0 and new_col[write_pos-1] == col[read_pos] and not col_merged[write_pos-1]:
                             new_col[write_pos-1] *= 2
                             self.score += new_col[write_pos-1]
-                            merged[write_pos-1][j] = True
+                            col_merged[write_pos-1] = True
                         else:
                             new_col[write_pos] = col[read_pos]
                             write_pos += 1
