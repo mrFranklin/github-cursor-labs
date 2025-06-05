@@ -8,7 +8,7 @@ class Game:
         self.grid = [[0] * 4 for _ in range(4)]
         self.score = 0
         self.add_new_tile()  # Add first tile during initialization
-        self.add_new_tile()  # Add second tile during initialization
+        self.add_new_tile(222)  # Add second tile during initialization
     
     def add_new_tile(self):
         """Add a new tile (2 with 90% probability, 4 with 10% probability) at a random empty cell."""
